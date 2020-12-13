@@ -1,22 +1,25 @@
-on: push
-name: Build and Generate Android Apk
-jobs:
-  build:
-    name: Build APK
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - name: Generate Xamarin Form Android APK
-        uses: fahimshahrierrasel/Xamarin-Droid-Builder@1.0.2
-        with:
-          args: /r:True /t:SignAndroidPackage /p:AndroidSdkDirectory=/android/sdk EindProject/Android/EindProject.Android.csproj
-      - name: Artifacts
-        run: |
-          mkdir -p apks
-          cp EindProject/Android/bin/Debug/*.apk apks
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v1
-        with:
-          name: apks
-          path: apks
+name: CI on Push and Pull Request
 
+on: 
+  push:
+    tags:
+    - '*'
+
+jobs:
+  Android:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build APK
+      run: |
+        cd Android
+        msbuild EindProject.Android.csproj /r:True /t:SignAndroidPackage /p:AndroidSdkDirectory=/android/sdk 
+    - name: Artifacts
+      run: |
+        mkdir -p apks
+        cp ./bin/Debug/*.apk apks
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: apks
+        path: apks
