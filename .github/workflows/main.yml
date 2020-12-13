@@ -7,7 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - name: Generate Xamarin Form Android APK
-      - uses: fahimshahrierrasel/Xamarin-Droid-Builder@1.0.2
+        uses: fahimshahrierrasel/Xamarin-Droid-Builder@1.0.2
         with:
           args: /r:True /t:SignAndroidPackage /p:AndroidSdkDirectory=/android/sdk EindProject/Android/EindProject.Android.csproj
       - name: Artifacts
