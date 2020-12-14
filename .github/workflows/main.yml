@@ -22,6 +22,7 @@ jobs:
         path: files
 
   Release:
+    needs: [Android]
     name: Create Draft Release
     runs-on: ubuntu-latest
     steps:
