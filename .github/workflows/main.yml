@@ -1,4 +1,4 @@
-name: CI on Push and Pull Request
+name: Build APK and Release
 
 on: push
 
@@ -13,11 +13,53 @@ jobs:
         msbuild EindProject.Android.csproj /r:True /t:SignAndroidPackage /p:AndroidSdkDirectory=/android/sdk 
     - name: Artifacts
       run: |
-        ls
-        mkdir -p apks
-        find . -name "*.apk" -type f -exec cp {} ./apks \;
+        mkdir -p files
+        find . -name "*.apk" -type f -exec cp {} ./files \;
     - name: Upload Artifacts
       uses: actions/upload-artifact@v1
       with:
-        name: apks
-        path: apks
+        name: files
+        path: files
+
+  Release:
+    name: Create Draft Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Download Artifact
+        uses: actions/download-artifact@master
+        with:
+          name: files
+          path: files
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./files/sh.damon.wakatime.apk
+          asset_name: WakaTime_base.apk
+          asset_content_type: application/vnd.android.package-archive
+      - name: Upload Release Signed Asset
+        id: upload-release-asset-signed
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./files/sh.damon.wakatime-Signed.apk
+          asset_name: WakaTime_base-Signed.apk
+          asset_content_type: application/vnd.android.package-archive
+
