@@ -17,3 +17,5 @@ It uses the WakaTime public API and some functionality has been built into the a
 ## Licensing
 
 This project is licensed under the MIT license, if you use parts of this code and it really helped you then you may give credit (or not).
+
+test
